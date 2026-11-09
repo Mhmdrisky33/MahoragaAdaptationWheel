@@ -27,11 +27,18 @@ jobs:
       - name: Extract mod ZIP
         run: |
           mkdir extracted
-          ZIP=$(find . -maxdepth 1 -iname '*.zip' | head -n 1)
+          ZIP="./MahoragaAdaptationWheel-visual-fix.zip"
+          if [ ! -f "$ZIP" ]; then
+            echo "ZIP visual fix tidak ditemukan!"
+            exit 1
+          fi
           unzip -q "$ZIP" -d extracted
           PROJECT=$(find extracted -name build.gradle -print -quit)
+          if [ -z "$PROJECT" ]; then
+            echo "build.gradle tidak ditemukan!"
+            exit 1
+          fi
           echo "PROJECT_DIR=$(dirname "$PROJECT")" >> $GITHUB_ENV
-
       - name: Fix NeoForge repositories
         run: |
           sed -i 's/RepositoriesMode.FAIL_ON_PROJECT_REPOS/RepositoriesMode.PREFER_PROJECT/g' "$PROJECT_DIR/settings.gradle"
